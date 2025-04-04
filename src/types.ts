@@ -6,4 +6,9 @@ export interface User {
     organization: string;
     status: boolean;
   }
+
+  export interface LoginResponse {
+    accessToken: string;
+    refreshToken: string;
+  }
   
