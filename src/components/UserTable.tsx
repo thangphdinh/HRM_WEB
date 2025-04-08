@@ -18,15 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-interface User {
-  userId: number;
-  username: string;
-  email: string;
-  role: string;
-  organization: string;
-  status: boolean;
-}
+import { User } from "@/types";
+import Link from "next/link";
 
 const columns: ColumnDef<User>[] = [
   {
@@ -100,7 +93,9 @@ const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>View Profile</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={`/users/${user.userId}`}>View Profile</Link>
+              </DropdownMenuItem>
             <DropdownMenuItem>Send Email</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

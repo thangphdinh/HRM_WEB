@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/api";
+import api from "@/lib/api.client";
 import UserTable from "@/components/UserTable";
 import Navbar from "@/components/Navbar";
 import { User } from "@/types";

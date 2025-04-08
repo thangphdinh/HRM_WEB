@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
- import api from "@/api";
+import api from "@/lib/api.client";
 import { LoginResponse } from "@/types";
 
 export default function LoginPage() {
@@ -13,14 +13,16 @@ export default function LoginPage() {
     const handleLogin = async () => {
         try {
             const response = await api.post<LoginResponse>("/auth/login", { email, password });
-            if (response.status === 200) {
-                localStorage.setItem("accessToken", response.data.accessToken);
-                localStorage.setItem("refreshToken", response.data.refreshToken);
-                router.push("/dashboard");
-            }
-            else {
-                setError("Đăng nhập không thành công!");
-            }
+            const { accessToken, refreshToken } = response.data;
+
+            // Gửi toke xuống API route để set vào cookie
+            await fetch("/api/auth/set-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accessToken, refreshToken }),
+            });
+
+            router.push("/dashboard");
         } catch (err) {
             console.error(err);
             setError("Email hoặc mật khẩu không đúng!");

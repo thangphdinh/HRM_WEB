@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import api from "@/api";
+import api from "@/lib/api.client";
 
 export default function Navbar() {
   const router = useRouter();
