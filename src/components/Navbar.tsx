@@ -42,7 +42,7 @@ export default function Navbar() {
       }
     };
     fetchUser();
-  }, []);
+  },);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);

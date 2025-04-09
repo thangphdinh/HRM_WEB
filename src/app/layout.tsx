@@ -14,6 +14,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "HRM App",
+  icons: {
+    icon: "/icon_hrm.png",
+    shortcut: "/icon_hrm.png",
+  },
   description: "Human Resource Management System",
 };
 
