@@ -1,73 +1,115 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import api from "@/api";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
+import { clearAuthCookies, getRefreshToken } from "@/lib/cookies";
+import { User } from "@/types/index";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Get current user info
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get("/auth/me");
+        setUser(res.data as User);
+      } catch (err) {
+        console.error("Failed to get user info", err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
+    const refreshToken = getRefreshToken();
 
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    // Kiểm tra nếu refreshToken có trong localStorage
     if (!refreshToken) {
-      // Nếu không có refreshToken, xóa các token và chuyển hướng ngay lập tức
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      clearAuthCookies();
       router.push("/login");
-      setIsLoggingOut(false); // Set lại trạng thái để mở lại button
       return;
     }
 
     try {
-      // Gọi API logout
-      const response = await api.post("/auth/logout", { refreshToken });
-
-      if (response.status === 200) {
-        // Nếu logout thành công, xóa thông tin trong localStorage và chuyển hướng
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        router.push("/login");
-      } else {
-        // Nếu có lỗi từ API, có thể thông báo lỗi cho người dùng
-        console.error("Logout failed:", response.data || "Unknown error");
-      }
+      await api.post("/auth/logout", { refreshToken });
     } catch (error) {
-      console.error("An error occurred while logging out:", error);
+      console.error("Logout failed:", error);
     } finally {
-      setIsLoggingOut(false); // Set lại trạng thái khi logout hoàn tất
+      clearAuthCookies();
+      router.push("/login");
+      setIsLoggingOut(false);
     }
   };
-
   return (
-    <nav className="bg-blue-600 text-white p-4 rounded-lg shadow-md flex items-center justify-between space-x-6">
-      <span className="text-2xl font-bold tracking-wide">HRM Dashboard</span>
+    <nav className="bg-blue-600 text-white p-4 shadow-md flex items-center justify-between">
+      <span className="text-2xl font-bold tracking-wide">
+        <Link href="/home" className="flex items-center gap-2">
+          <img src="/icon_hrm.png" alt="HRM icon" className="h-10" />
+          HRM APP
+        </Link>
+      </span>
 
-      {/* Navigation Menu */}
       <div className="flex items-center space-x-6">
-        <button className="text-lg hover:bg-blue-700 p-2 rounded-md transition-all">
+        <Link href="/home" className="hover:bg-blue-700 px-3 py-2 rounded-md">
           Home
-        </button>
-        <button className="text-lg hover:bg-blue-700 p-2 rounded-md transition-all">
+        </Link>
+        <Link href="#" className="hover:bg-blue-700 px-3 py-2 rounded-md">
           Reports
-        </button>
-        <button className="text-lg hover:bg-blue-700 p-2 rounded-md transition-all">
+        </Link>
+        <Link href="#" className="hover:bg-blue-700 px-3 py-2 rounded-md">
           Settings
-        </button>
+        </Link>
+        {user && (user.role === "Admin" || user.role === "SystemAdmin") && (
+          <Link
+            href="/dashboard"
+            className="hover:bg-blue-700 px-3 py-2 rounded-md"
+          >
+            Dashboard
+          </Link>
+        )}
 
-        {/* Logout Button */}
-        <button
-          onClick={handleLogout}
-          disabled={isLoggingOut} // Disable the button while logging out
-          className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-md transition-all"
-        >
-          {isLoggingOut ? "Logging out..." : "Logout"}
-        </button>
+        {/* Dropdown Menu for user */}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="text-white text-base font-semibold">
+                {user.username}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel className="text-gray-500">Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/profile">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 font-medium"
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? "Logging out..." : "Logout"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
       </div>
     </nav>
   );
+
 }

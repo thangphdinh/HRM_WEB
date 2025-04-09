@@ -1,3 +1,8 @@
+export interface RefreshTokenResponse {
+    accessToken: string;
+}
+
+// export interface User
 export interface User {
     userId: number;
     username: string;
@@ -5,10 +10,11 @@ export interface User {
     role: string;
     organization: string;
     status: boolean;
-  }
+}
 
-  export interface LoginResponse {
+// export interface LoginResponse
+export interface LoginResponse {
     accessToken: string;
     refreshToken: string;
-  }
-  
+}
+

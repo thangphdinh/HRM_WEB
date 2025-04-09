@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
- import api from "@/api";
-import { LoginResponse } from "@/types";
+import { api } from "@/lib/api";
+import { LoginResponse } from "@/types/index";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -14,23 +15,35 @@ export default function LoginPage() {
         try {
             const response = await api.post<LoginResponse>("/auth/login", { email, password });
             if (response.status === 200) {
-                localStorage.setItem("accessToken", response.data.accessToken);
-                localStorage.setItem("refreshToken", response.data.refreshToken);
-                router.push("/dashboard");
+                const { accessToken, refreshToken } = response.data;    
+                // Set cookies for access and refresh tokens
+                Cookies.set("accessToken", accessToken, {
+                     path: "/", 
+                     expires: 1 / 24, // 1 hour in days
+                     secure: false, // Set to false for local development, true for production
+                     sameSite: "Strict" 
+                    });
+                Cookies.set("refreshToken", refreshToken, { 
+                    path: "/",
+                    expires: 7, // 7 days in days
+                    secure: false, // Set to false for local development, true for production
+                    sameSite: "Strict" 
+                });
+                router.push("/home");
             }
             else {
-                setError("Đăng nhập không thành công!");
+                setError("Invalid credentials. Please try again.");
             }
         } catch (err) {
             console.error(err);
-            setError("Email hoặc mật khẩu không đúng!");
+            setError("Login failed. Please try again.");
         }
     };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
             <div className="p-8 bg-white shadow-md rounded-lg w-96">
-                <h2 className="text-2xl font-bold mb-4">Đăng nhập</h2>
+                <h2 className="text-2xl font-bold mb-4">Login</h2>
                 {error && <p className="text-red-500">{error}</p>}
                 <input
                     type="email"
@@ -47,7 +60,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button onClick={handleLogin} className="w-full bg-blue-500 text-white p-2 rounded">
-                    Đăng nhập
+                    Login
                 </button>
             </div>
         </div>
