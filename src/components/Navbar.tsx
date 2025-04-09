@@ -2,7 +2,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { clearAuthCookies, getRefreshToken } from "@/lib/cookies";
@@ -17,10 +16,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-=======
-import { useState } from "react";
-import api from "@/lib/api.client";
->>>>>>> b534c702b9cd1a69ca9d40149c0b0f764a6b17b6
 
 export default function Navbar() {
   const router = useRouter();
