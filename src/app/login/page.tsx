@@ -1,9 +1,14 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
 import { api } from "@/lib/api";
 import { LoginResponse } from "@/types/index";
 import Cookies from "js-cookie";
+=======
+import api from "@/lib/api.client";
+import { LoginResponse } from "@/types";
+>>>>>>> b534c702b9cd1a69ca9d40149c0b0f764a6b17b6
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -14,6 +19,7 @@ export default function LoginPage() {
     const handleLogin = async () => {
         try {
             const response = await api.post<LoginResponse>("/auth/login", { email, password });
+<<<<<<< HEAD
             if (response.status === 200) {
                 const { accessToken, refreshToken } = response.data;    
                 // Set cookies for access and refresh tokens
@@ -34,6 +40,18 @@ export default function LoginPage() {
             else {
                 setError("Invalid credentials. Please try again.");
             }
+=======
+            const { accessToken, refreshToken } = response.data;
+
+            // Gửi toke xuống API route để set vào cookie
+            await fetch("/api/auth/set-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ accessToken, refreshToken }),
+            });
+
+            router.push("/dashboard");
+>>>>>>> b534c702b9cd1a69ca9d40149c0b0f764a6b17b6
         } catch (err) {
             console.error(err);
             setError("Login failed. Please try again.");
