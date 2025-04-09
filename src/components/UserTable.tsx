@@ -94,7 +94,7 @@ const columns: ColumnDef<User>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link href={`/users/${user.userId}`}>View Profile</Link>
+              <Link href={`/user/${user.userId}`}>View Profile</Link>
               </DropdownMenuItem>
             <DropdownMenuItem>Send Email</DropdownMenuItem>
           </DropdownMenuContent>

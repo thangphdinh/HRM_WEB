@@ -16,18 +16,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/stores/useAuthStore"; /* Dùng store để lưu trữ thông tin sau khi login, gọi là global state (sử dụng lib zustand) */
 
 export default function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { setAuthInfo } = useAuthStore()
 
   // Get current user info
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await api.get("/auth/me");
-        setUser(res.data as User);
+        const userData = res.data as User;
+        setUser(userData);
+        setAuthInfo({
+          userId: userData.userId,
+          username: userData.username,
+          role: userData.role,
+          organization: userData.organization,
+        });
       } catch (err) {
         console.error("Failed to get user info", err);
       }
@@ -95,7 +104,7 @@ export default function Navbar() {
               <DropdownMenuLabel className="text-gray-500">Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/profile">Profile</Link>
+                <Link href={`/user/${user.userId}`}>Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}

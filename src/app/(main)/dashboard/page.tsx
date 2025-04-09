@@ -5,11 +5,13 @@ import { api } from "@/lib/api";
 import UserTable from "@/components/UserTable";
 import { User } from "@/types/index";
 import { getAccessToken } from "@/lib/cookies";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function DashboardPage() {
     const [userInfo, setUserInfo] = useState<User[]>([]);
     const [error] = useState<string>("");
     const [showError] = useState<boolean>(false);
+    const { organization } = useAuthStore();
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -36,7 +38,7 @@ export default function DashboardPage() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold my-4">User List</h1>
+            <h1 className="text-2xl font-bold my-4">{organization} - {userInfo.length} users</h1>
 
             {/* Overlay để làm mờ nền khi popup xuất hiện */}
             {showError && (
