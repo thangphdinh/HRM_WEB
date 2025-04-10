@@ -48,20 +48,24 @@ export default function Navbar() {
     setIsLoggingOut(true);
     const refreshToken = getRefreshToken();
 
-    if (!refreshToken) {
-      clearAuthCookies();
-      router.push("/login");
-      return;
-    }
-
     try {
-      await api.post("/auth/logout", { refreshToken });
+      if (refreshToken) {
+        await api.post("/auth/logout", { refreshToken });
+      }
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
+      // Xóa cookie
       clearAuthCookies();
-      router.push("/login");
-      setIsLoggingOut(false);
+
+      // Reset store
+      useAuthStore.getState().clearAuthInfo();
+
+      // Delay nhẹ để đảm bảo state ổn định
+      setTimeout(() => {
+        router.replace("/login"); // dùng replace để tránh user bấm Back quay lại trang cũ
+        setIsLoggingOut(false);
+      }, 200);
     }
   };
   return (
