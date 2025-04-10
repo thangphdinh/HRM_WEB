@@ -1,3 +1,4 @@
+import { setAuthCookies } from '@/lib/cookies';
 import { RefreshTokenResponse } from '@/types/index';
 import axios from 'axios';
 import Cookies from 'js-cookie';
@@ -34,7 +35,10 @@ api.interceptors.response.use(
 
         const res = await axios.post<RefreshTokenResponse>(`${API_BASE_URL}/auth/refresh-token`, { refreshToken });
         const newAccessToken = res.data.accessToken;
-        Cookies.set("accessToken", newAccessToken);
+        const newRefreshToken = res.data.refreshToken;
+        // Get rememberMe from cookies
+        const rememberMe = Cookies.get("rememberMe") === "true";
+        setAuthCookies(newAccessToken, newRefreshToken , rememberMe); // Assuming you want to keep the same rememberMe setting
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         return api(originalRequest);

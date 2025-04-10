@@ -2,24 +2,31 @@
 
 import Cookies from 'js-cookie';
 
-export const setAuthCookies = (accessToken: string, refreshToken: string) => {
+export const setAuthCookies = (accessToken: string, refreshToken: string, rememberMe: boolean) => {
   Cookies.set('accessToken', accessToken, {
     path: '/',
     sameSite: 'Strict',
-    maxAge: 60 * 15, // 15 minutes in seconds
+    expires: rememberMe ? 1 : 1/24/60*15, // 1 day if rememberMe is true, otherwise 15 minutes
     secure: false, // Set to false for local development, true for production
   });
   Cookies.set('refreshToken', refreshToken, {
     path: '/',
     sameSite: 'Strict',
-    maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+    expires: 7, // 7 days for refresh token
     secure: false, // Set to false for local development, true for production
   });
+  Cookies.set("rememberMe", rememberMe.toString(), {
+    path: "/",
+    sameSite: "Strict",
+    secure: false,
+  });
+  
 };
 
 export const clearAuthCookies = () => {
   Cookies.remove('accessToken');
   Cookies.remove('refreshToken');
+  Cookies.remove('rememberMe');
 };
 
 export const getAccessToken = (): string | undefined => {
